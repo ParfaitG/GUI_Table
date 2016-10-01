@@ -1,4 +1,3 @@
-library(RSQLite)
 library(gWidgets2)
 library(gWidgets2tcltk)
 
@@ -53,6 +52,5 @@ mainWindow <- function(makelist){
     
   })
 }
-
 
 mainWindow()

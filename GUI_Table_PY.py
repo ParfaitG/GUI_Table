@@ -1,7 +1,6 @@
+import os
 import pandas as pd
-import numpy as np
 
-import sys, os
 from tkinter import *
 from tkinter import ttk 
 
