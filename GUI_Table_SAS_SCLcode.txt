@@ -1,0 +1,107 @@
+* Gui_table frame;
+
+INIT:                                                                                                                                                        
+   dcl list indvars;                                                                                                                                         
+   dcl list yearvars;                                                                                                                                        
+   dcl list metrovars;                                                                                                                                       
+                                                                                                                                                             
+   submit continue;                                                                                                                                          
+      data Industrylist;                                                                                                                                     
+         set IncData;                                                                                                                                        
+         keep Industry;                                                                                                                                      
+      run;                                                                                                                                                   
+                                                                                                                                                             
+      proc sort data=Industrylist nodupkey out=Industrylist;                                                                                                 
+         by descending Industry;                                                                                                                             
+      run;                                                                                                                                                   
+                                                                                                                                                             
+      data Yearlist;                                                                                                                                         
+         set IncData;                                                                                                                                        
+         keep Inc_Year;                                                                                                                                      
+      run;                                                                                                                                                   
+                                                                                                                                                             
+      proc sort data=Yearlist nodupkey out=Yearlist;                                                                                                         
+         by descending Inc_Year;                                                                                                                             
+      run;                                                                                                                                                   
+                                                                                                                                                             
+      data Metrolist;                                                                                                                                        
+         set IncData;                                                                                                                                        
+         keep Metro_Area;                                                                                                                                    
+      run;                                                                                                                                                   
+                                                                                                                                                             
+      proc sort data=Metrolist nodupkey out=Metrolist;                                                                                                       
+         by descending Metro_Area;                                                                                                                           
+      run;                                                                                                                                                   
+   endsubmit;                                                                                                                                                
+                                                                                                                                                             
+   * Industry Combo;                                                                                                                                         
+   nlevels = 0;                                                                                                                                              
+   inddata=open('IndustryList', 'I');                                                                                                                        
+                                                                                                                                                             
+   if (inddata > 0) then do;                                                                                                                                 
+        indvars = makelist();                                                                                                                                
+        rc = lvarlevel(inddata, 'industry', nlevels, indvars);                                                                                               
+   end;                                                                                                                                                      
+                                                                                                                                                             
+   industrycbo.items = indvars;                                                                                                                              
+   rc = close(inddata);                                                                                                                                      
+                                                                                                                                                             
+   * Year Combo;                                                                                                                                             
+   nlevels = 0;                                                                                                                                              
+   yeardata=open('YearList', 'I');                                                                                                                           
+                                                                                                                                                             
+   if (yeardata > 0) then do;                                                                                                                                
+        yearvars = makelist();                                                                                                                               
+        rc = lvarlevel(yeardata, 'inc_year', nlevels, yearvars);                                                                                             
+   end;                                                                                                                                                      
+                                                                                                                                                             
+   yearcbo.items = yearvars;                                                                                                                                 
+   rc = close(yeardata);                                                                                                                                     
+                                                                                                                                                             
+   * Metro Combo;                                                                                                                                            
+   nlevels = 0;                                                                                                                                              
+   metrodata=open('MetroList', 'I');                                                                                                                         
+                                                                                                                                                             
+   if (metrodata > 0) then do;                                                                                                                               
+        metrovars = makelist();                                                                                                                              
+        rc = lvarlevel(metrodata, 'metro_area', nlevels, metrovars);                                                                                         
+   end;                                                                                                                                                      
+                                                                                                                                                             
+   metrocbo.items = metrovars;                                                                                                                               
+   rc = close(metrodata);                                                                                                                                    
+return;                                                                                                                                                      
+                                                                                                                                                             
+btnOutput:                                                                                                                                                   
+   call display('GUItable.Catalog.Gui_data.frame', industrycbo.selectedItem, yearcbo.selectedItem, metrocbo.selectedItem);                                   
+return;                                                                                                                                                      
+                                                                                                                                                             
+term:                                                                                                                                                        
+  rc = dellist(indvars);                                                                                                                                     
+  rc = dellist(yearvars);                                                                                                                                    
+  rc = dellist(metrovars);                                                                                                                                   
+return;
+
+
+* Gui_data frame;
+
+ENTRY ind:char yr:char metro:char;                                                                                                      
+                                                                                                                                        
+INIT:                                                                                                                                   
+   dcl char strfilter;                                                                                                                  
+                                                                                                                                        
+   strfilter = "1 = 1";                                                                                                                 
+                                                                                                                                        
+   if ind ne ' ' then do;                                                                                                               
+      strfilter = strfilter || ' AND industry='||quote(ind);                                                                            
+   end;                                                                                                                                 
+                                                                                                                                        
+   if yr ne ' ' then do;                                                                                                                
+      strfilter = strfilter || ' AND inc_year='||quote(yr);                                                                             
+   end;                                                                                                                                 
+                                                                                                                                        
+   if metro ne ' ' then do;                                                                                                             
+      strfilter = strfilter || ' AND metro_area='||quote(metro);                                                                        
+   end;                                                                                                                                 
+                                                                                                                                        
+   IncData.where = strfilter;                                                                                                           
+return;
